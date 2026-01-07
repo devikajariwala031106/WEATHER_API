@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Information App</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="weather-app">
+        <h2>Weather Information</h2>
+
+        <div class="search-section">
+            <input type="text" id="cityBox" placeholder="Enter city name">
+            <button id="btnSearch">Search</button>
+        </div>
+
+        <div class="error-box" id="errorBox">
+            City not found. Please try again.
+        </div>
+
+        <div class="result-card" id="resultCard">
+            <h3 id="cityTitle"></h3>
+
+            <div class="main-weather">
+                <img id="mainIcon" alt="Weather Icon">
+                <p id="tempText"></p>
+            </div>
+
+            <div class="details-grid">
+                <div class="detail-item">
+                    <img src="https://cdn-icons-png.flaticon.com/512/728/728093.png">
+                    <span>Humidity</span>
+                    <strong id="humidityText"></strong>
+                </div>
+
+                <div class="detail-item">
+                    <img src="https://cdn-icons-png.flaticon.com/512/553/553416.png">
+                    <span>Wind Speed</span>
+                    <strong id="windText"></strong>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const API_KEY = "e0c4d5ce2760ef0cd09ebe273621e906";
+        const BASE_API = "https://api.openweathermap.org/data/2.5/weather?units=metric&q=";
+
+        const cityBox = document.getElementById("cityBox");
+        const btnSearch = document.getElementById("btnSearch");
+        const errorBox = document.getElementById("errorBox");
+        const resultCard = document.getElementById("resultCard");
+
+        const cityTitle = document.getElementById("cityTitle");
+        const tempText = document.getElementById("tempText");
+        const humidityText = document.getElementById("humidityText");
+        const windText = document.getElementById("windText");
+        const mainIcon = document.getElementById("mainIcon");
+
+        async function showWeather(city) {
+            try {
+                const res = await fetch(BASE_API + city + "&appid=" + API_KEY);
+                if (!res.ok) throw new Error("Error");
+
+                const data = await res.json();
+
+                cityTitle.textContent = data.name;
+                tempText.textContent = Math.round(data.main.temp) + " °C";
+                humidityText.textContent = data.main.humidity + " %";
+                windText.textContent = data.wind.speed + " km/h";
+
+                mainIcon.src = selectIcon(data.weather[0].main);
+
+                resultCard.style.display = "block";
+                errorBox.style.display = "none";
+            } catch {
+                resultCard.style.display = "none";
+                errorBox.style.display = "block";
+            }
+        }
+
+        function selectIcon(type) {
+            if (type === "Clear") return "https://c.tadst.com/gfx/w/svg/wt-1.svg";
+            if (type === "Clouds") return "https://c.tadst.com/gfx/w/svg/wt-7.svg";
+            if (type === "Rain") return "https://c.tadst.com/gfx/w/svg/wt-19.svg";
+            if (type === "Drizzle") return "https://c.tadst.com/gfx/w/svg/wt-34.svg";
+            if (type === "Snow") return "https://c.tadst.com/gfx/w/svg/wt-30.svg";
+            if (type === "Thunderstorm") return "https://c.tadst.com/gfx/w/svg/wt-15.svg";
+            return "https://i.pinimg.com/originals/77/0b/80/770b805d5c99c7931366c2e84e88f251.png";
+        }
+
+        btnSearch.addEventListener("click", () => {
+            const city = cityBox.value.trim();
+            if (city !== "") showWeather(city);
+        });
+
+        cityBox.addEventListener("keyup", e => {
+            if (e.key === "Enter") btnSearch.click();
+        });
+    </script>
+
+</body>
+
+</html>
